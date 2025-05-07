@@ -21,11 +21,15 @@
     .container {
       width: 100%;
       max-width: 400px;
+      height: 90vh; /* 90% tinggi layar */
       background: white;
       border-radius: 10px;
       box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      margin: 5vh auto 0 auto; /* tengah atas */
       overflow: hidden;
-      margin: 30px auto 0 auto; /* posisi tengah atas */
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
     }
 
     .header {
@@ -47,6 +51,7 @@
     .content {
       padding: 25px;
       text-align: center;
+      flex-grow: 1;
     }
 
     .content h3 {
