@@ -101,6 +101,16 @@
       margin-top: 10px;
     }
 
+    @keyframes blink {
+      0% { opacity: 1; }
+      50% { opacity: 0.5; }
+      100% { opacity: 1; }
+    }
+
+    .blinking {
+      animation: blink 1.5s ease-in-out infinite;
+    }
+
     .fade-message {
       opacity: 0;
       transform: translateY(10px);
@@ -180,10 +190,13 @@
 
     function showMessage(element, message) {
       element.innerText = message;
-      element.classList.remove('show');
+      element.classList.remove('show', 'blinking');
       element.style.display = 'block';
       requestAnimationFrame(() => {
         element.classList.add('show');
+        if (message.includes('Token benar')) {
+          element.classList.add('blinking');
+        }
       });
     }
 
@@ -209,7 +222,7 @@
         const end = new Date(tokenData[input].endTime);
 
         if (now >= start && now <= end) {
-          showMessage(successMsg, 'Token benar, mohon tunggu sedang memuat...');
+          showMessage(successMsg, 'Token benar! Mohon tunggu sedang memuat');
           successSound.play();
           setTimeout(() => {
             window.location.href = tokenData[input].url;
