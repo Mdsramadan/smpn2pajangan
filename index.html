@@ -82,6 +82,11 @@
       font-size: 16px;
       cursor: pointer;
       width: 100%;
+      transition: transform 0.1s ease;
+    }
+
+    button:active {
+      transform: scale(0.96);
     }
 
     .error {
@@ -94,6 +99,19 @@
       color: green;
       font-size: 14px;
       margin-top: 10px;
+    }
+
+    .fade-message {
+      opacity: 0;
+      transform: translateY(10px);
+      transition: opacity 0.5s ease, transform 0.5s ease;
+      display: none;
+    }
+
+    .fade-message.show {
+      display: block;
+      opacity: 1;
+      transform: translateY(0);
     }
 
     .footer {
@@ -120,11 +138,13 @@
       <h3>UJIAN BERBASIS ONLINE</h3>
       <h4>Selamat Datang</h4>
       <p>Silakan login menggunakan token ujian yang anda miliki</p>
+
+      <div id="errorMsg" class="error fade-message"></div>
+      <div id="successMsg" class="success fade-message"></div>
+
       <form onsubmit="return checkToken();">
         <input type="text" id="tokenInput" placeholder="Masukkan Token Ujian" />
-        <button type="submit">MASUK</button>
-        <div id="errorMsg" class="error" style="display: none;">Token yang anda masukan salah!</div>
-        <div id="successMsg" class="success" style="display: none;">Token berhasil, mohon tunggu sedang memuat...</div>
+        <button type="submit" id="loginBtn">MASUK</button>
       </form>
     </div>
     <div class="footer">
@@ -133,6 +153,9 @@
       <div id="clockWIB">Memuat waktu...</div>
     </div>
   </div>
+
+  <!-- Suara notifikasi -->
+  <audio id="successSound" src="https://www.myinstants.com/media/sounds/success-fanfare-trumpets.mp3" preload="auto"></audio>
 
   <script>
     const tokenData = {
@@ -153,13 +176,32 @@
       }
     };
 
+    const successSound = document.getElementById('successSound');
+
+    function showMessage(element, message) {
+      element.innerText = message;
+      element.classList.remove('show');
+      element.style.display = 'block';
+      requestAnimationFrame(() => {
+        element.classList.add('show');
+      });
+    }
+
+    function hideMessages() {
+      const errorMsg = document.getElementById('errorMsg');
+      const successMsg = document.getElementById('successMsg');
+      [errorMsg, successMsg].forEach(msg => {
+        msg.classList.remove('show');
+        msg.style.display = 'none';
+      });
+    }
+
     function checkToken() {
       const input = document.getElementById('tokenInput').value.trim();
       const errorMsg = document.getElementById('errorMsg');
       const successMsg = document.getElementById('successMsg');
 
-      errorMsg.style.display = 'none';
-      successMsg.style.display = 'none';
+      hideMessages();
 
       if (tokenData[input]) {
         const now = new Date();
@@ -167,19 +209,16 @@
         const end = new Date(tokenData[input].endTime);
 
         if (now >= start && now <= end) {
-          successMsg.style.display = 'block';
-
-          // Redirect setelah 1 detik agar pesan terlihat
+          showMessage(successMsg, 'Token benar, mohon tunggu sedang memuat...');
+          successSound.play();
           setTimeout(() => {
             window.location.href = tokenData[input].url;
           }, 1000);
         } else {
-          errorMsg.innerText = 'Token belum aktif atau sudah kedaluwarsa.';
-          errorMsg.style.display = 'block';
+          showMessage(errorMsg, 'Token belum aktif atau sudah kedaluwarsa.');
         }
       } else {
-        errorMsg.innerText = 'Token yang anda masukan salah!';
-        errorMsg.style.display = 'block';
+        showMessage(errorMsg, 'Token yang anda masukan salah!');
       }
 
       return false;
